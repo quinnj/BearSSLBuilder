@@ -1,0 +1,40 @@
+language: julia
+os:
+  - linux
+julia:
+  - 0.6
+notifications:
+  email: false
+git:
+  depth: 99999999
+cache:
+  timeout: 1000
+  directories:
+    - downloads
+env:
+  global:
+    - BINARYBUILDER_DOWNLOADS_CACHE=downloads
+    - BINARYBUILDER_AUTOMATIC_APPLE=false
+sudo: required
+
+# Before anything else, get the latest versions of things
+before_script:
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryProvider.jl")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryBuilder.jl"); Pkg.build()'
+
+script:
+  - julia build_tarballs.jl
+
+
+deploy:
+    provider: releases
+    api_key:
+        # Note; this api_key is only valid for quinnj/BearSSLBuilder; you need
+        # to make your own: https://docs.travis-ci.com/user/deployment/releases/
+        secure: rxWfB2ufPHbovGM7RzyjTxD3xolbYQ6JYrJ9qCKHd1kf+sxiAXJuQv/P999IYMNEPOccwCeD00fLgyyKoFlxH0cfVxuijXILz5x2yF9K2wa31j5wPXTbIqJ95JMUZ7iB76zQIV6hsyXisQ6xQiAb9fqoAnYfsp0Q4S7jq81ZQlxLmyr7w4oXrniQDdXjKbsH/z3GhrhjDBsCy6/Wkbvuolsp81H28SSrYhtWZDsHfNrWBpRHLzF6A7MRvo5RiqEUOGefgzBjm/5hzFybm9GuNKBWsidFy9h8p8m5iOwPb/WRHZWnfZLtBShEfpOXgTPcHIDndbaG7i9N3quHJnjak0LBCsFG9emkXGsMyeQbOwVClVykgbUaClrTg/q1eK4qV5akthTgHxVmv1Use/B4+UYCoQikzx5yL1zUK7y/q6Ht4+avj2JFNDiPcZw5s8o6qOCMPcGe3u7mVGpCWT40UZUdDnzZjghIDorj6mdJocQW/bL9kNApi9MjuOSFevz3whkb/554mky/wPB/m0cVVuwN2dBouYvhaXv9AgxF4mOVWP+SCojeCeUppmzwF1mjtFNB1oo7vF0rEvIICD+toVyc4syNVNLtf4SEkuM5/KEmr8TotagRfIVsyicbW8ImbvvgGK8OJSlmhpuWZwXv/CUOaFxK3HC73uKqHZnymiw=
+    file_glob: true
+    file: products/*
+    skip_cleanup: true
+    on:
+        repo: quinnj/BearSSLBuilder
+        tags: true
